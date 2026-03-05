@@ -39,12 +39,12 @@ interface PortfolioState {
   fetchHoldings: () => Promise<void>;
   fetchTransactions: () => Promise<void>;
   fetchStocks: () => Promise<void>;
-  addHolding: (data: any) => Promise<void>;
   addTransaction: (data: any) => Promise<void>;
   addStock: (data: any) => Promise<void>;
-  deleteHolding: (id: number) => Promise<void>;
   deleteTransaction: (id: number) => Promise<void>;
+  deleteStock: (symbol: string) => Promise<void>;
   getMarketPrice: (symbol: string) => Promise<any>;
+  recalculateHoldings: () => Promise<void>;
 }
 
 export const usePortfolioStore = create<PortfolioState>((set, get) => ({
@@ -81,14 +81,11 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
     }
   },
 
-  addHolding: async (data) => {
-    const response = await holdingsApi.create(data);
-    set((state) => ({ holdings: [response.data, ...state.holdings] }));
-  },
-
   addTransaction: async (data) => {
     const response = await transactionsApi.create(data);
     set((state) => ({ transactions: [response.data, ...state.transactions] }));
+    // Refresh holdings after adding transaction
+    await get().fetchHoldings();
   },
 
   addStock: async (data) => {
@@ -96,22 +93,26 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
     set((state) => ({ stocks: [...state.stocks, response.data] }));
   },
 
-  deleteHolding: async (id) => {
-    await holdingsApi.delete(id);
-    set((state) => ({
-      holdings: state.holdings.filter((h) => h.id !== id),
-    }));
-  },
-
   deleteTransaction: async (id) => {
     await transactionsApi.delete(id);
     set((state) => ({
       transactions: state.transactions.filter((t) => t.id !== id),
     }));
+    // Refresh holdings after deleting transaction
+    await get().fetchHoldings();
   },
 
   getMarketPrice: async (symbol) => {
     const response = await marketApi.getPrice(symbol);
     return response.data;
+  },
+
+  recalculateHoldings: async () => {
+    try {
+      await fetch('/api/transactions/recalculate-all', { method: 'POST' });
+      await get().fetchHoldings();
+    } catch (error: any) {
+      set({ error: error.message });
+    }
   },
 }));

@@ -88,6 +88,28 @@ StockApp/
 
 All notable changes to this project will be documented here.
 
+### [v0.4.0] - 2026-03-05
+
+#### Added
+- Gradient background and modern color scheme throughout the app
+- Loading skeleton animations for better UX during data fetching
+- Stock avatars with initials in holdings and transactions tables
+- Type badges with icons (📈 BUY, 📉 SELL, 💰 DIVIDEND)
+- Hover effects and smooth transitions on all interactive elements
+- Footer with version info
+
+#### Changed
+- **App.tsx**: Redesigned header with gradient logo, sticky navigation, responsive tab buttons with icons
+- **Dashboard**: Enhanced summary cards with gradients and hover scale effects, improved pie chart with better tooltips and formatting, better empty states
+- **Holdings**: Complete table redesign with stock avatars, improved gain/loss display with arrows and percentages, better loading states
+- **Transactions**: Modern form design with better validation feedback, enhanced table layout with improved typography, better empty states with CTA button
+
+#### Improved
+- Overall visual polish and consistency
+- Better responsive design across all components
+- Enhanced user experience with loading states and empty states
+- Better accessibility with proper labels and focus states
+
 ### [v0.3.0] - 2026-03-05
 
 #### Added

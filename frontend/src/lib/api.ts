@@ -14,11 +14,10 @@ export const stocksApi = {
   delete: (symbol: string) => api.delete(`/stocks/${symbol}`),
 };
 
+// Holdings are now read-only (calculated from transactions)
 export const holdingsApi = {
   getAll: () => api.get('/holdings'),
-  create: (data: { stockId: number; shares: number; avgCost: number; purchaseDate: string }) => api.post('/holdings', data),
-  update: (id: number, data: { shares: number; avgCost: number; purchaseDate: string }) => api.put(`/holdings/${id}`, data),
-  delete: (id: number) => api.delete(`/holdings/${id}`),
+  recalculate: () => api.post('/transactions/recalculate-all'),
 };
 
 export const transactionsApi = {

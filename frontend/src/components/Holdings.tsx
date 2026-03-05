@@ -1,130 +1,149 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { usePortfolioStore } from '../store/portfolioStore';
 
 function Holdings() {
-  const { holdings, fetchHoldings, stocks, addHolding, deleteHolding } = usePortfolioStore();
-  const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({
-    stockId: '',
-    shares: '',
-    avgCost: '',
-    purchaseDate: new Date().toISOString().split('T')[0],
-  });
+  const { holdings, fetchHoldings, getMarketPrice } = usePortfolioStore();
+  const [loading, setLoading] = useState(true);
+  const [holdingsData, setHoldingsData] = useState<any[]>([]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await addHolding({
-      stockId: parseInt(formData.stockId),
-      shares: parseFloat(formData.shares),
-      avgCost: parseFloat(formData.avgCost),
-      purchaseDate: formData.purchaseDate,
-    });
-    setShowForm(false);
-    setFormData({ stockId: '', shares: '', avgCost: '', purchaseDate: new Date().toISOString().split('T')[0] });
-    fetchHoldings();
-  };
+  useEffect(() => {
+    const loadData = async () => {
+      await fetchHoldings();
+      setLoading(false);
+    };
+    loadData();
+  }, []);
+
+  useEffect(() => {
+    const calculateHoldingsData = async () => {
+      const data = [];
+      for (const holding of holdings) {
+        try {
+          const marketData = await getMarketPrice(holding.stock.symbol);
+          const currentPrice = marketData.price || marketData.demo?.price || holding.avgCost;
+          const currentValue = holding.shares * currentPrice;
+          const costBasis = holding.shares * holding.avgCost;
+          const gainLoss = currentValue - costBasis;
+          const gainLossPercent = costBasis > 0 ? ((gainLoss / costBasis) * 100) : 0;
+
+          data.push({
+            ...holding,
+            currentPrice,
+            currentValue,
+            costBasis,
+            gainLoss,
+            gainLossPercent
+          });
+        } catch (error) {
+          const currentValue = holding.shares * holding.avgCost;
+          const costBasis = holding.shares * holding.avgCost;
+          data.push({
+            ...holding,
+            currentPrice: holding.avgCost,
+            currentValue,
+            costBasis,
+            gainLoss: 0,
+            gainLossPercent: 0
+          });
+        }
+      }
+      setHoldingsData(data);
+    };
+
+    if (holdings.length > 0) {
+      calculateHoldingsData();
+    }
+  }, [holdings]);
+
+  if (loading) {
+    return (
+      <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+        <div className="animate-pulse space-y-4">
+          <div className="h-6 bg-gray-700 rounded w-1/4"></div>
+          <div className="h-4 bg-gray-700 rounded w-1/2"></div>
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-12 bg-gray-700/50 rounded"></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-gray-800 rounded-lg p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-xl font-bold">Holdings</h3>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-sm"
-        >
-          {showForm ? 'Cancel' : '+ Add Holding'}
-        </button>
+    <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 shadow-xl">
+      <div className="mb-6">
+        <div className="flex items-center gap-3 mb-2">
+          <span className="text-3xl">💼</span>
+          <h3 className="text-2xl font-bold text-white">Holdings</h3>
+        </div>
+        <p className="text-gray-400 text-sm">
+          Holdings are automatically calculated from your transactions. Add BUY/SELL transactions to update.
+        </p>
       </div>
 
-      {showForm && (
-        <form onSubmit={handleSubmit} className="mb-6 space-y-4 bg-gray-700 p-4 rounded">
-          <div>
-            <label className="block text-sm mb-1">Stock</label>
-            <select
-              value={formData.stockId}
-              onChange={(e) => setFormData({ ...formData, stockId: e.target.value })}
-              className="w-full bg-gray-600 rounded px-3 py-2"
-              required
-            >
-              <option value="">Select a stock</option>
-              {stocks.map((stock) => (
-                <option key={stock.id} value={stock.id}>
-                  {stock.symbol} {stock.name ? `- ${stock.name}` : ''}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm mb-1">Shares</label>
-              <input
-                type="number"
-                step="0.01"
-                value={formData.shares}
-                onChange={(e) => setFormData({ ...formData, shares: e.target.value })}
-                className="w-full bg-gray-600 rounded px-3 py-2"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm mb-1">Avg Cost ($)</label>
-              <input
-                type="number"
-                step="0.01"
-                value={formData.avgCost}
-                onChange={(e) => setFormData({ ...formData, avgCost: e.target.value })}
-                className="w-full bg-gray-600 rounded px-3 py-2"
-                required
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm mb-1">Purchase Date</label>
-            <input
-              type="date"
-              value={formData.purchaseDate}
-              onChange={(e) => setFormData({ ...formData, purchaseDate: e.target.value })}
-              className="w-full bg-gray-600 rounded px-3 py-2"
-              required
-            />
-          </div>
-          <button type="submit" className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded w-full">
-            Add Holding
-          </button>
-        </form>
-      )}
-
       {holdings.length === 0 ? (
-        <p className="text-gray-400 text-center py-8">No holdings yet. Add your first position!</p>
+        <div className="text-center py-16">
+          <div className="text-7xl mb-4">📭</div>
+          <h3 className="text-xl font-bold text-white mb-2">No Holdings Yet</h3>
+          <p className="text-gray-400 mb-4">Start building your portfolio by adding your first BUY transaction!</p>
+          <div className="inline-block bg-gray-700/50 rounded-lg px-4 py-2 text-sm text-gray-300">
+            Navigate to Transactions → Add Transaction
+          </div>
+        </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-700">
-                <th className="text-left py-2">Stock</th>
-                <th className="text-left py-2">Shares</th>
-                <th className="text-left py-2">Avg Cost</th>
-                <th className="text-left py-2">Purchase Date</th>
-                <th className="text-left py-2">Actions</th>
+              <tr className="border-b border-gray-600">
+                <th className="text-left py-4 px-4 text-sm font-semibold text-gray-300 uppercase tracking-wider">Stock</th>
+                <th className="text-left py-4 px-4 text-sm font-semibold text-gray-300 uppercase tracking-wider">Shares</th>
+                <th className="text-left py-4 px-4 text-sm font-semibold text-gray-300 uppercase tracking-wider">Avg Cost</th>
+                <th className="text-left py-4 px-4 text-sm font-semibold text-gray-300 uppercase tracking-wider">Current Price</th>
+                <th className="text-left py-4 px-4 text-sm font-semibold text-gray-300 uppercase tracking-wider">Market Value</th>
+                <th className="text-left py-4 px-4 text-sm font-semibold text-gray-300 uppercase tracking-wider">Gain/Loss</th>
               </tr>
             </thead>
-            <tbody>
-              {holdings.map((holding) => (
-                <tr key={holding.id} className="border-b border-gray-700">
-                  <td className="py-3">
-                    <span className="font-bold">{holding.stock.symbol}</span>
-                    {holding.stock.name && <span className="text-gray-400 text-sm ml-2">{holding.stock.name}</span>}
+            <tbody className="divide-y divide-gray-700">
+              {holdingsData.map((holding) => (
+                <tr 
+                  key={holding.id} 
+                  className="hover:bg-gray-700/30 transition-colors duration-150 group"
+                >
+                  <td className="py-4 px-4">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                        {holding.stock.symbol.substring(0, 2)}
+                      </div>
+                      <div className="ml-4">
+                        <div className="font-bold text-white">{holding.stock.symbol}</div>
+                        {holding.stock.name && (
+                          <div className="text-gray-400 text-sm truncate max-w-[200px]">{holding.stock.name}</div>
+                        )}
+                      </div>
+                    </div>
                   </td>
-                  <td className="py-3">{holding.shares}</td>
-                  <td className="py-3">${holding.avgCost.toFixed(2)}</td>
-                  <td className="py-3">{new Date(holding.purchaseDate).toLocaleDateString()}</td>
-                  <td className="py-3">
-                    <button
-                      onClick={() => deleteHolding(holding.id)}
-                      className="text-red-400 hover:text-red-300 text-sm"
-                    >
-                      Delete
-                    </button>
+                  <td className="py-4 px-4">
+                    <span className="text-white font-medium">{holding.shares.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  </td>
+                  <td className="py-4 px-4">
+                    <span className="text-gray-300">${holding.avgCost.toFixed(2)}</span>
+                  </td>
+                  <td className="py-4 px-4">
+                    <span className="text-white font-medium">${holding.currentPrice.toFixed(2)}</span>
+                  </td>
+                  <td className="py-4 px-4">
+                    <span className="text-white font-semibold">${holding.currentValue.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  </td>
+                  <td className="py-4 px-4">
+                    <div className={`flex items-center gap-2 ${holding.gainLoss >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      <span className={`text-lg font-bold ${holding.gainLoss >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        {holding.gainLoss >= 0 ? '▲' : '▼'}
+                      </span>
+                      <div>
+                        <div className="font-bold">${Math.abs(holding.gainLoss).toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+                        <div className="text-xs opacity-80">{holding.gainLossPercent >= 0 ? '+' : ''}{holding.gainLossPercent.toFixed(2)}%</div>
+                      </div>
+                    </div>
                   </td>
                 </tr>
               ))}
