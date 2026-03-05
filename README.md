@@ -88,6 +88,30 @@ StockApp/
 
 All notable changes to this project will be documented here.
 
+### [v0.5.0] - 2026-03-05
+
+#### Added
+- **Stock Detail Page** - Individual stock price charts with interactive time range selectors (1D, 1W, 1M, 3M, 6M, 1Y, 5Y)
+- **Historical Price Data** - Backend endpoint `/api/market/:symbol/history` with Alpha Vantage integration
+- **Price History Caching** - New `PriceHistory` database model to cache historical data and minimize API calls
+- **Area Charts** - Beautiful price charts with gradient fills using Recharts
+- **Clickable Stock Symbols** - Navigate to stock detail from Holdings and Transactions tables
+- **Stock Statistics** - Period high/low, average volume displayed on stock detail page
+- **React Router** - Client-side routing for stock detail pages
+
+#### Changed
+- **App.tsx**: Added routing support, conditional header display based on route
+- **main.tsx**: Wrapped app with BrowserRouter for routing
+- **Holdings.tsx**: Stock symbols now clickable, navigate to detail view
+- **Transactions.tsx**: Stock symbols now clickable, navigate to detail view
+- **market.ts**: Added historical data endpoint with caching logic, demo data generator
+
+#### Improved
+- Real-time price data with historical context
+- Better data efficiency with intelligent caching
+- Enhanced user navigation between related views
+- Chart tooltips with formatted dates and prices
+
 ### [v0.4.0] - 2026-03-05
 
 #### Added

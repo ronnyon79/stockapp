@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { usePortfolioStore } from '../store/portfolioStore';
 
 function Holdings() {
   const { holdings, fetchHoldings, getMarketPrice } = usePortfolioStore();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [holdingsData, setHoldingsData] = useState<any[]>([]);
 
@@ -110,17 +112,20 @@ function Holdings() {
                   className="hover:bg-gray-700/30 transition-colors duration-150 group"
                 >
                   <td className="py-4 px-4">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                    <button
+                      onClick={() => navigate(`/stock/${holding.stock.symbol}`)}
+                      className="flex items-center hover:bg-gray-600/30 rounded-lg p-2 -ml-2 transition-colors group"
+                    >
+                      <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm group-hover:scale-110 transition-transform">
                         {holding.stock.symbol.substring(0, 2)}
                       </div>
-                      <div className="ml-4">
-                        <div className="font-bold text-white">{holding.stock.symbol}</div>
+                      <div className="ml-4 text-left">
+                        <div className="font-bold text-white group-hover:text-blue-400 transition-colors">{holding.stock.symbol}</div>
                         {holding.stock.name && (
                           <div className="text-gray-400 text-sm truncate max-w-[200px]">{holding.stock.name}</div>
                         )}
                       </div>
-                    </div>
+                    </button>
                   </td>
                   <td className="py-4 px-4">
                     <span className="text-white font-medium">{holding.shares.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>

@@ -40,3 +40,19 @@ model Transaction {
   notes       String?
   createdAt   DateTime @default(now())
 }
+
+model PriceHistory {
+  id        Int      @id @default(autoincrement())
+  symbol    String
+  date      String   // YYYY-MM-DD format for easy querying
+  open      Float
+  high      Float
+  low       Float
+  close     Float
+  volume    Int
+  timestamp DateTime @default(now())
+
+  @@unique([symbol, date])
+  @@index([symbol])
+  @@index([date])
+}

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { usePortfolioStore } from '../store/portfolioStore';
 
 const typeConfig = {
@@ -8,6 +9,7 @@ const typeConfig = {
 };
 
 function Transactions() {
+  const navigate = useNavigate();
   const { transactions, fetchTransactions, addTransaction, deleteTransaction, addStock } = usePortfolioStore();
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -252,12 +254,15 @@ function Transactions() {
                     </span>
                   </td>
                   <td className="py-4 px-4">
-                    <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => navigate(`/stock/${tx.stock.symbol}`)}
+                      className="flex items-center gap-3 hover:bg-gray-600/30 rounded-lg p-2 -ml-2 transition-colors"
+                    >
                       <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xs">
                         {tx.stock.symbol.substring(0, 2)}
                       </div>
-                      <span className="font-bold text-white">{tx.stock.symbol}</span>
-                    </div>
+                      <span className="font-bold text-white hover:text-blue-400 transition-colors">{tx.stock.symbol}</span>
+                    </button>
                   </td>
                   <td className="py-4 px-4">
                     <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border ${typeConfig[tx.type as keyof typeof typeConfig].color}`}>
