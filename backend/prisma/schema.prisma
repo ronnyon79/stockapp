@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Stock {
+  id          Int          @id @default(autoincrement())
+  symbol      String       @unique
+  name        String?
+  sector      String?
+  holdings    Holding[]
+  transactions Transaction[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Holding {
+  id           Int      @id @default(autoincrement())
+  stockId      Int
+  stock        Stock    @relation(fields: [stockId], references: [id])
+  shares       Float
+  avgCost      Float
+  purchaseDate DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Transaction {
+  id          Int      @id @default(autoincrement())
+  stockId     Int
+  stock       Stock    @relation(fields: [stockId], references: [id])
+  type        String   // BUY, SELL, DIVIDEND
+  shares      Float
+  price       Float
+  date        DateTime
+  notes       String?
+  createdAt   DateTime @default(now())
+}
