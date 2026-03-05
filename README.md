@@ -88,6 +88,30 @@ StockApp/
 
 All notable changes to this project will be documented here.
 
+### [v0.3.0] - 2026-03-05
+
+#### Added
+- Frontend dashboard with portfolio summary cards
+- Asset allocation pie chart (Recharts)
+- Holdings management UI (add/delete positions)
+- Transactions history UI (BUY/SELL/DIVIDEND)
+- Zustand state management for global state
+- API client with axios for backend communication
+
+#### Changed
+- Updated App.tsx with tab navigation (Dashboard, Holdings, Transactions)
+
+### [v0.2.0] - 2026-03-05
+
+#### Added
+- Backend API endpoints: `/api/stocks`, `/api/holdings`, `/api/transactions`, `/api/market/:symbol`
+- Prisma database migration (SQLite) with Stock, Holding, Transaction tables
+- Market data integration with Alpha Vantage (demo mode without API key)
+- Full CRUD operations for stocks, holdings, and transactions
+
+#### Changed
+- Downgraded Prisma to v5.7 for stable SQLite support
+
 ### [v0.1.0] - 2026-03-05
 
 #### Added
