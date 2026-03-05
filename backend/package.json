@@ -11,21 +11,25 @@
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate"
   },
-  "keywords": ["stock", "portfolio", "finance"],
+  "keywords": [
+    "stock",
+    "portfolio",
+    "finance"
+  ],
   "author": "Ronny",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
+    "@prisma/client": "^7.4.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "@prisma/client": "^5.7.0"
+    "express": "^4.18.2"
   },
   "devDependencies": {
-    "@types/node": "^20.10.0",
-    "@types/express": "^4.17.21",
     "@types/cors": "^2.8.17",
-    "typescript": "^5.3.0",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.0",
+    "prisma": "^7.4.2",
     "tsx": "^4.6.0",
-    "prisma": "^5.7.0"
+    "typescript": "^5.3.0"
   }
 }
