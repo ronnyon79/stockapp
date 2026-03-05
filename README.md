@@ -36,11 +36,50 @@ Personal financial stock portfolio manager to track investments, transactions, a
 ## Getting Started
 
 ```bash
-# Install dependencies
+# Install backend dependencies
+cd backend
 npm install
 
-# Run development server
+# Install frontend dependencies
+cd ../frontend
+npm install
+
+# Run backend (port 3001)
+cd backend
 npm run dev
+
+# Run frontend (port 3000) - in new terminal
+cd frontend
+npm run dev
+```
+
+---
+
+## Project Structure
+
+```
+StockApp/
+├── backend/                 # Node.js + Express API
+│   ├── src/
+│   │   └── index.ts        # Express server entry point
+│   ├── prisma/
+│   │   └── schema.prisma   # Database schema (Stock, Holding, Transaction)
+│   ├── .env.example        # Environment variables template
+│   ├── package.json
+│   └── tsconfig.json
+│
+├── frontend/                # React + Vite + TypeScript
+│   ├── src/
+│   │   ├── main.tsx        # React entry point
+│   │   └── index.css       # Tailwind styles
+│   ├── index.html
+│   ├── vite.config.ts      # Vite config with API proxy
+│   ├── package.json
+│   └── tsconfig.json
+│
+├── STOCK_APP_PLAN.md       # Full development plan
+├── README.md               # This file
+└── .gitignore
 ```
 
 ---
@@ -49,7 +88,14 @@ npm run dev
 
 All notable changes to this project will be documented here.
 
-### [Unreleased]
+### [v0.1.0] - 2026-03-05
+
+#### Added
+- Initial project structure (backend + frontend folders)
+- Backend: Express server with TypeScript, Prisma schema (Stock, Holding, Transaction models)
+- Frontend: React 18 + Vite + TypeScript + Tailwind CSS setup
+- Git repository initialized and pushed to GitHub
+- Development plan documented
 
 ---
 
